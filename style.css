@@ -1,0 +1,234 @@
+/* Variables for colors, fonts, and dimensions */
+:root {
+    --primary-bg-color: #282c34;
+    --primary-text-color: white;
+    --secondary-bg-color: #f4f4f9;
+    --secondary-text-color: goldenrod;
+    --card-border-color: #ddd;
+    --card-bg-overlay: rgba(0, 0, 0, 0.1);
+    --button-bg-color: darkblue;
+    --button-border-color: gray;
+    --box-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --box-shadow-hover: 0 6px 10px rgba(0, 0, 0, 0.15);
+    --font-family: Arial, sans-serif;
+    --font-size-h1: 2.5rem;
+    --padding-large: 20px;
+    --padding-small: 10px;
+    --border-radius: 8px;
+}
+
+/* General Styles */
+* {
+    box-sizing: border-box;
+}
+
+h1, h2 {
+    font-size: var(--font-size-h1);
+    text-align: center;
+}
+
+h3 {
+    text-align: center;
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    background-color: var(--secondary-bg-color);
+}
+
+header, footer {
+    text-align: center;
+    background-color: var(--primary-bg-color);
+    color: var(--primary-text-color);
+    padding: var(--padding-large);
+}
+
+footer {
+    padding: var(--padding-small);
+}
+
+main {
+    padding: var(--padding-large);
+}
+
+hr {
+    width: 80%;
+}
+
+/* Grid Styles */
+.grid {
+    display: grid;
+    gap: var(--padding-large);
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+}
+
+/* Card Styles */
+.character-card, .planet-card {
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--border-radius);
+    padding: var(--padding-small);
+    text-align: center;
+    box-shadow: var(--box-shadow-light);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: linear-gradient(var(--card-bg-overlay), var(--card-bg-overlay)), url("img/cardWallpaper.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    color: var(--primary-text-color);
+}
+
+.character-card:hover, .planet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.character-card img, .planet-card img {
+    width: auto;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out, opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.planet-card img {
+    border-radius: var(--padding-large);
+}
+
+.character-card h3, .planet-card h3{
+    color: black;
+}
+
+.character-card img:hover, .planet-card img:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+}
+
+.character-card img {
+    height: 250px;
+}
+
+.planet-card img {
+    height: 160px;
+}
+
+/* Pagination and Button Styles */
+.pagination-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--padding-small);
+    padding: var(--padding-large);
+    border: 1px solid var(--button-border-color);
+    border-radius: 20px;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    width: fit-content;
+    background-color: var(--primary-bg-color);
+}
+
+button {
+    color: var(--primary-text-color);
+    background-color: var(--button-bg-color);
+    padding: var(--padding-small);
+    border-radius: 20%;
+    border: 1px solid var(--button-border-color);
+    box-shadow: var(--box-shadow-light);
+    cursor: pointer;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    header, footer {
+        font-size: 14px;
+    }
+}
+
+/* Form Styles */
+form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--padding-large);
+}
+
+label {
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid var(--card-border-color);
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    form {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Additional Section Styles */
+.characteristics-div {
+    background-color: var(--primary-bg-color);
+    padding: var(--padding-large);
+    margin-top: var(--padding-large);
+    border-radius: 20px;
+}
+
+.characteristics {
+    font-weight: bold;
+    color: var(--primary-text-color);
+}
+
+.yellow {
+    color: var(--secondary-text-color);
+}
+
+.description-container, .habitants-container {
+    overflow-y: auto;
+    border: 1px solid var(--card-border-color);
+    padding: 8px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    color: black;
+}
+
+.description-container {
+    max-height: 150px;
+    margin-top: var(--padding-large);
+}
+
+.habitants-container {
+    max-height: 200px;
+}
+
+/* Fade-in and Fade-out Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+.fade-out {
+    opacity: 1;
+    animation: fadeOut 0.5s forwards;
+}

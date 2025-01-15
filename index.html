@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball API Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="img/favIcon.png" type="image/png">
+</head>
+<body>
+    <header>
+        <h1>Dragon Ball API Viewer</h1>
+        <p>Explora el universo de Dragon Ball con datos dinámicos de la API</p>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Filtrar personajes</h2>
+            <form action="#" method="POST" id="filterCharacters">
+              <!-- Filtro de Nombre -->
+              <div>
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name" placeholder="Ingresa el nombre">
+              </div>
+        
+              <!-- Filtro de Género -->
+              <div>
+                <label for="gender">Género</label>
+                <select id="gender" name="gender">
+                  <option value="">Selecciona un género</option>
+                  <option value="Male">Masculino</option>
+                  <option value="Female">Femenino</option>
+                  <option value="Unknown">Desconocido</option>
+                </select>
+              </div>
+        
+              <!-- Filtro de Raza -->
+              <div>
+                <label for="race">Raza</label>
+                <select id="race" name="race">
+                  <option value="">Selecciona una raza</option>
+                  <option value="Human">Humano</option>
+                  <option value="Saiyan">Saiyan</option>
+                  <option value="Namekian">Namekian</option>
+                  <option value="Majin">Majin</option>
+                  <option value="Frieza Race">Raza Frieza</option>
+                  <option value="Android">Androide</option>
+                  <option value="Jiren Race">Raza Jiren</option>
+                  <option value="God Angel">Ángel Divino</option>
+                  <option value="Evil">Maligno</option>
+                  <option value="Nucleico">Nucleico</option>
+                  <option value="Nucleico benigno">Nucleico Benigno</option>
+                  <option value="Unknown">Desconocido</option>
+                </select>
+              </div>
+        
+              <!-- Filtro de Afiliación -->
+              <div>
+                <label for="affiliation">Afiliación</label>
+                <select id="affiliation" name="affiliation">
+                  <option value="">Selecciona una afiliación</option>
+                  <option value="Z Fighter">Z Fighter</option>
+                  <option value="Red Ribbon Army">Ejército de la Cinta Roja</option>
+                  <option value="Namekian Warrior">Guerrero Namekiano</option>
+                  <option value="Freelancer">Freelancer</option>
+                  <option value="Army of Frieza">Ejército de Frieza</option>
+                  <option value="Pride Troopers">Tropa del Orgullo</option>
+                  <option value="Assistant of Vermoud">Asistente de Vermoud</option>
+                  <option value="God Assistant of Beerus">Asistente Divino de Beerus</option>
+                  <option value="Villain">Villano</option>
+                  <option value="Other">Otro</option>
+                </select>
+              </div>
+        
+              <!-- Botón de Enviar -->
+              <div class="full-width">
+                <button type="submit">Filtrar</button>
+              </div>
+            </form>
+          </div>
+          
+          <section class="character-section">
+            <div id="characters-filtred" class="grid"></div>
+          </section>
+          <hr>
+        <section class="character-section">
+            <h2>Personajes</h2>
+            <div id="character-list" class="grid"></div>
+        </section>
+        <div class="container">
+            <h3>Pon cuantos personajes ver por página</h3>
+            <form action="#" method="POST" id="numPersonajes">
+              <!-- Filtro de Nombre -->
+              <div>
+                <label for="name">Num personajes:</label>
+                <input type="number" id="paginacion" name="paginacion" placeholder="Ejemplo: 5">
+                <h3 id="numePersonajes"></h3>
+              </div>
+            </form>
+          </div>
+        <div class="pagination-buttons">
+            <button id="InitialCharacters" data-action="initial">initial</button>
+            <button id="PreviousCharacters" data-action="previous">Previous</button>
+            <button id="nextCharacters" data-action="next">Next</button>
+            <button id="LastCharacters" data-action="last">Last</button>
+        </div>
+
+        <hr>
+        <div class="container">
+            <h2>Filtrar planetas</h2>
+            <form action="#" method="POST" id="filterPlanets">
+              <!-- Filtro de Nombre -->
+              <div>
+                <label for="planet-name">Nombre</label>
+                <input type="text" id="planet-name" name="planet-name" placeholder="Ingresa el nombre del planeta">
+              </div>
+        
+              <!-- Filtro de Destruido -->
+              <div>
+                <label for="isDestroyed">Destruido</label>
+                <select id="isDestroyed" name="isDestroyed">
+                  <option value="">Selecciona una opción</option>
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+        
+              <!-- Botón de Enviar -->
+              <div class="full-width">
+                <button type="submit">Filtrar</button>
+              </div>
+            </form>
+          </div>
+        <hr>
+
+        <section class="planets-section">
+            <div id="planets-filtred" class="grid"></div>
+        </section>
+
+          <hr>
+        <section class="planet-section">
+            <h2>Planetas</h2>
+            <div id="planet-list" class="grid"></div>
+        </section>
+        <div id="planet-pagination-buttons" class="pagination-buttons">
+            <button id="InitialPlanets" data-action="initial">Initial</button>
+            <button id="PreviousPlanets" data-action="previous">Previous</button>
+            <button id="nextPlanets" data-action="next">Next</button>
+            <button id="LastPlanets" data-action="last">Last</button>
+        </div>
+        <form action="#" method="POST" id="numPlanetas">
+            <!-- Filtro de Nombre -->
+            <div>
+              <label for="name">Num planetas:</label>
+              <input type="number" id="paginacionPlanetas" name="paginacion" placeholder="Ejemplo: 5">
+              <h3 id="numePlanetas"></h3>
+            </div>
+          </form>
+    </main>
+
+    <footer>
+        <p>Aplicación desarrollada con la <a href="https://web.dragonball-api.com/documentation" target="_blank">Dragon Ball API</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
