@@ -35,7 +35,7 @@ body {
     font-family: var(--font-family);
     margin: 0;
     padding: 0;
-    background-color: var(--secondary-bg-color);
+    background: linear-gradient(135deg, #ffffff, #c5c5df, #9797c0);
 }
 
 header, footer {
@@ -51,6 +51,27 @@ footer {
 
 main {
     padding: var(--padding-large);
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px); 
+    padding: 20px;
+    margin: 50px auto; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    text-align: center; 
+    background-image: url('img/DBWallpaper.gif');
+    background-size: cover; 
+    background-position: center;
+    width: 90%;
+}
+
+.main__text{
+    background-color: var(--primary-text-color);
+    padding: var(--padding-small);
+    border-radius: var(--padding-small);
+    width: fit-content;
+    margin: 0 auto;
+    margin-bottom: var(--padding-large);
+    margin-top: var(--padding-large);
 }
 
 hr {
@@ -62,6 +83,15 @@ hr {
     display: grid;
     gap: var(--padding-large);
     grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+}
+
+#filterCharacters, #filterPlanets {
+    margin-bottom: var(--padding-large);
+}
+
+#numPlanetas, #numPersonajes {
+    width: fit-content;
+    margin: 0 auto;
 }
 
 /* Card Styles */
