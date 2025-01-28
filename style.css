@@ -1,4 +1,4 @@
-/* Variables for colors, fonts, and dimensions */
+/* Variables para colores, fuentes y dimensiones */
 :root {
     --primary-bg-color: #282c34;
     --primary-text-color: white;
@@ -35,19 +35,86 @@ body {
     font-family: var(--font-family);
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #ffffff, #c5c5df, #9797c0);
+    background: linear-gradient(150deg, #53525a, #9a9ac6, #7575b4);
 }
 
-header, footer {
+header,footer {
     text-align: center;
     background-color: var(--primary-bg-color);
     color: var(--primary-text-color);
     padding: var(--padding-large);
 }
 
-footer {
-    padding: var(--padding-small);
+header{
+    background: linear-gradient(90deg, #ffcc00, #ff9900, #ff6600, #ff3300, #ff9900);
+    background-size: 300% 300%;
+    animation: warm-gradient 10s linear infinite;
+    
 }
+
+header a:hover{
+    color: var(--primary-bg-color);
+}
+
+header h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    display: inline;
+}
+
+header p {
+    font-size: 1.2rem;
+    font-weight: lighter;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    padding: 0;
+    margin: 20px 0;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: var(--primary-text-color);
+    font-weight: bold;
+    transition: color 0.5s ease;
+}
+
+header nav ul li a:hover {
+    color: var(--primary-bg-color);
+}
+
+footer {
+    text-align: center;
+    background-color: var(--primary-bg-color);
+    color: var(--secondary-text-color);
+    padding: var(--padding-large);
+    font-family: var(--font-primary);
+}
+
+footer p {
+    margin: 5px 0;
+    font-size: 1rem;
+}
+
+footer a, footer div a {
+    color: var(--primary-text-color);
+    text-decoration: none;
+    margin: 0 5px;
+    transition: color 0.5s ease;
+}
+
+footer a:hover, footer div a:hover{
+    color: var(--secondary-text-color);
+}
+
+footer div a:hover {
+    filter: brightness(1.2);
+}
+
 
 main {
     padding: var(--padding-large);
@@ -250,6 +317,18 @@ input, select {
     }
     to {
         opacity: 0;
+    }
+}
+
+@keyframes warm-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
     }
 }
 

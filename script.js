@@ -1,12 +1,12 @@
 
 let initial = true;
-// Common controller and element references
+// Controlador común para elementos principales y filtros
 const controllers = {
     main: null,
     filter: null
 };
 
-// Special image cases for broken/missing images
+// Casos especiales de imágenes para transformaciones
 const specialImages = {
     'Vegetto SSJ': '../img/Vegetto_ssj.webp',
     'Trunks SSJ2': '../img/Ssj2Trunks.png'
@@ -42,9 +42,9 @@ const elements = {
     }
 };
 
-// Common fetch function for both entities
+// fetch común para ambas entidades
 async function fetchData(url, type, isFiltered = false) {
-    // Cancel previous request if exists
+    // Cancelar la solicitud previa si existe
     if (controllers[isFiltered ? 'filter' : 'main'] && !initial) {
         controllers[isFiltered ? 'filter' : 'main'].abort();
     }
@@ -72,7 +72,7 @@ async function fetchData(url, type, isFiltered = false) {
     }
 }
 
-// Fetch detailed item data by ID
+// Buscar un item por su id y tipo
 async function fetchItemById(id, type) {
     try {
         const response = await fetch(`https://dragonball-api.com/api/${type.toLowerCase()}/${id}`);
@@ -83,7 +83,7 @@ async function fetchItemById(id, type) {
     }
 }
 
-// Update pagination button URLs
+// Actualizar los botones de paginación
 function updatePaginationUrls(links, type) {
     const buttons = elements[type.toLowerCase()].pagination;
     const dataAttribute = type.toLowerCase();
@@ -94,7 +94,7 @@ function updatePaginationUrls(links, type) {
     buttons.last.dataset[dataAttribute] = links.last;
 }
 
-// Display items (characters or planets)
+// Mostrar items
 async function displayItems(items, type, filtered = false) {
     const container = filtered ? 
         elements[type.toLowerCase()].filteredList : 
@@ -116,7 +116,7 @@ async function displayItems(items, type, filtered = false) {
     await Promise.all(renderPromises);
 }
 
-// Create basic card structure
+// Crear una tarjeta básica para un personaje o planeta
 function createBasicCard(item, type) {
     const card = document.createElement('div');
     card.className = `${type.toLowerCase().slice(0, -1)}-card`;
@@ -141,12 +141,12 @@ function createBasicCard(item, type) {
     return card;
 }
 
-// Enhance character card with specific details
+// Mejorar la tarjeta del personaje con detalles específicos
 async function enhanceCharacterCard(card, character) {
     const characteristicsDiv = document.createElement('div');
     characteristicsDiv.classList.add('characteristics-div');
 
-    // Add basic characteristics
+    // Añadir características básicas
     const characteristics = {
         'Raza': character.race,
         'Género': character.gender,
@@ -161,7 +161,7 @@ async function enhanceCharacterCard(card, character) {
         characteristicsDiv.appendChild(element);
     });
 
-    // Add transformations container
+    // añadir el contenedor de las transformaciones
     const transformationsContainer = document.createElement('div');
     transformationsContainer.className = 'transformations';
     const loadingMessage = document.createElement('p');
@@ -172,16 +172,16 @@ async function enhanceCharacterCard(card, character) {
     characteristicsDiv.appendChild(transformationsContainer);
     card.appendChild(characteristicsDiv);
 
-    // Fetch and add transformations
+    // Fetch y transformaciones
     const fullCharacter = await fetchItemById(character.id, 'Characters');
     transformationsContainer.innerHTML = '';
 
     if (fullCharacter && fullCharacter.transformations.length > 0) {
-        // Add base form button
+        // Añadir botón de la forma base
         const originalButton = createTransformationButton('Forma base', character.image, character.ki);
         transformationsContainer.appendChild(originalButton);
 
-        // Add transformation buttons
+        // Añadir botones de transformaciones
         fullCharacter.transformations.forEach(transformation => {
             const transformationButton = createTransformationButton(
                 transformation.name,
@@ -225,18 +225,18 @@ async function enhanceCharacterCard(card, character) {
     }
 }
 
-// Enhance planet card with specific details
+// Mejorar la tarjeta del planeta con detalles específicos
 async function enhancePlanetCard(card, planet) {
     const characteristicsDiv = document.createElement('div');
     characteristicsDiv.classList.add('characteristics-div');
 
-    // Add destruction status
+    // Estado de destrucción
     const isDestroyedElement = document.createElement('p');
     isDestroyedElement.innerHTML = `<span class="characteristics yellow">Destruido:</span> <span class="characteristics">${planet.isDestroyed ? 'Sí' : 'No'}</span>`;
     characteristicsDiv.appendChild(isDestroyedElement);
     card.appendChild(characteristicsDiv);
 
-    // Fetch and add inhabitants
+    // Buscar y añadir habitantes
     const fullPlanet = await fetchItemById(planet.id, 'Planets');
     if (fullPlanet && fullPlanet.characters.length > 0) {
         const characterContainer = document.createElement('div');
@@ -255,12 +255,12 @@ async function enhancePlanetCard(card, planet) {
     }
 }
 
-// Handle filter form submission
+// Manejar el filtrado
 function handleFilter(e, type) {
     const formData = new FormData(e.target.form);
     const filters = {};
     
-    // Get filter values based on type
+    // Obtener el filtro según el tipo de entidad
     if (type === 'Characters') {
         filters.name = formData.get('name');
         filters.gender = formData.get('gender');
@@ -271,13 +271,13 @@ function handleFilter(e, type) {
         filters.isDestroyed = formData.get('isDestroyed');
     }
 
-    // Check if all filters are empty
+    // Revisar si todos los filtros están vacíos
     if (Object.values(filters).every(value => !value)) {
         showNoItemsFoundMessage(type, true);
         return;
     }
 
-    // Build filter URL
+    // Construir la url con los filtros
     let url = `https://dragonball-api.com/api/${type.toLowerCase()}?`;
     Object.entries(filters).forEach(([key, value]) => {
         if (value) {
@@ -289,7 +289,7 @@ function handleFilter(e, type) {
     fetchData(url, type, true);
 }
 
-// Show message when no items are found
+// Enseñas un mensaje si no se encuentran items
 function showNoItemsFoundMessage(type, isEmpty = false) {
     const container = elements[type.toLowerCase()].filteredList;
     const message = isEmpty ? 
@@ -299,7 +299,7 @@ function showNoItemsFoundMessage(type, isEmpty = false) {
     container.innerHTML = `<p class="main__text">${message}</p>`;
 }
 
-// Handle fetch errors
+// Manejar los errores del fetch
 function handleFetchError(error, isFiltered, type) {
     if (error.name === "AbortError") {
         console.log(`Solicitud de ${isFiltered ? 'filtrado de ' : ''}${type.toLowerCase()} cancelada`);
@@ -311,7 +311,7 @@ function handleFetchError(error, isFiltered, type) {
     }
 }
 
-// Handle pagination input changes
+// Manejar el input de los cambios de paginación
 function handlePaginationInput(type) {
     const { paginationInput, errorDisplay, list } = elements[type.toLowerCase()];
     list.innerHTML = '';
@@ -335,22 +335,22 @@ function handlePaginationInput(type) {
     fetchData(`https://dragonball-api.com/api/${type.toLowerCase()}?page=1&limit=${limit}`, type);
 }
 
-// Initialize event listeners
+// Inicialización de los eventos
 function initializeEventListeners() {
     ['Characters', 'Planets'].forEach(type => {
         const typeElements = elements[type.toLowerCase()];
         
-        // Pagination buttons
+        // botones de paginación
         Object.values(typeElements.pagination).forEach(button => {
             button.addEventListener('click', (e) => {
                 const url = e.target.dataset[type.toLowerCase()];
                 fetchData(url, type);
             });
         });
-        // Pagination input
+        // Paginación input
         typeElements.paginationInput.addEventListener('input', () => handlePaginationInput(type));
 
-        // Filter form
+        // Formulario de filtrado
         typeElements.filterForm.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', (e) => handleFilter(e, type));
         });
@@ -361,10 +361,10 @@ function initializeEventListeners() {
     });
 }
 
-// Initialize application
+// Inicialización de la página
 document.addEventListener('DOMContentLoaded', () => {
-    fetchData('https://dragonball-api.com/api/characters?page=1&limit=4', 'Characters');
-    fetchData('https://dragonball-api.com/api/planets?page=1&limit=4', 'Planets');
+    fetchData('https://dragonball-api.com/api/characters?page=1&limit=2', 'Characters');
+    fetchData('https://dragonball-api.com/api/planets?page=1&limit=2', 'Planets');
     initializeEventListeners();
     initial = false;
 });
