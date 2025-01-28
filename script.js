@@ -1,111 +1,158 @@
-// DOM Elements
+
+let initial = true;
+// Common controller and element references
+const controllers = {
+    main: null,
+    filter: null
+};
+
+// Special image cases for broken/missing images
+const specialImages = {
+    'Vegetto SSJ': '../img/Vegetto_ssj.webp',
+    'Trunks SSJ2': '../img/Ssj2Trunks.png'
+};
+
+// DOM Elements object for centralized reference management
 const elements = {
     characters: {
-        prevButton: document.getElementById("PreviousCharacters"),
-        initButton: document.getElementById("InitialCharacters"),
-        nextButton: document.getElementById("nextCharacters"),
-        lastButton: document.getElementById("LastCharacters"),
-        filterForm: document.getElementById("filterCharacters"),
+        list: document.getElementById('character-list'),
+        filteredList: document.getElementById('characters-filtred'),
+        pagination: {
+            prev: document.getElementById("PreviousCharacters"),
+            init: document.getElementById("InitialCharacters"),
+            next: document.getElementById("nextCharacters"),
+            last: document.getElementById("LastCharacters")
+        },
         paginationInput: document.getElementById("paginacion"),
-        errorText: document.getElementById("numePersonajes"),
-        list: document.getElementById("character-list"),
-        filteredList: document.getElementById("characters-filtred")
+        errorDisplay: document.getElementById("numePersonajes"),
+        filterForm: document.getElementById("filterCharacters")
     },
     planets: {
-        prevButton: document.getElementById("PreviousPlanets"),
-        initButton: document.getElementById("InitialPlanets"),
-        nextButton: document.getElementById("nextPlanets"),
-        lastButton: document.getElementById("LastPlanets"),
-        filterForm: document.getElementById("filterPlanets"),
+        list: document.getElementById('planet-list'),
+        filteredList: document.getElementById('planets-filtred'),
+        pagination: {
+            prev: document.getElementById("PreviousPlanets"),
+            init: document.getElementById("InitialPlanets"),
+            next: document.getElementById("nextPlanets"),
+            last: document.getElementById("LastPlanets")
+        },
         paginationInput: document.getElementById("paginacionPlanetas"),
-        errorText: document.getElementById("numePlanetas"),
-        list: document.getElementById("planet-list"),
-        filteredList: document.getElementById("planets-filtred")
+        errorDisplay: document.getElementById("numePlanetas"),
+        filterForm: document.getElementById("filterPlanets")
     }
 };
 
-// Custom images for specific transformations
-const customImages = {
-    "Vegetto SSJ": "../img/Vegetto_ssj.webp",
-    "Trunks SSJ2": "../img/Ssj2Trunks.png"
-};
+// Common fetch function for both entities
+async function fetchData(url, type, isFiltered = false) {
+    // Cancel previous request if exists
+    if (controllers[isFiltered ? 'filter' : 'main'] && !initial) {
+        controllers[isFiltered ? 'filter' : 'main'].abort();
+    }
+    controllers[isFiltered ? 'filter' : 'main'] = new AbortController();
 
-// Generic fetch function for both characters and planets
-async function fetchById(type, id) {
     try {
-        const response = await fetch(`https://dragonball-api.com/api/${type}/${id}`);
+        const response = await fetch(url, { signal: controllers[isFiltered ? 'filter' : 'main'].signal });
+        const data = await response.json();
+        
+        if (isFiltered) {
+            if (Array.isArray(data) && data.length > 0) {
+                await displayItems(data, type, true);
+            } else {
+                showNoItemsFoundMessage(type);
+            }
+        } else {
+            const items = data.items;
+            updatePaginationUrls(data.links, type);
+            if (Array.isArray(items)) {
+                await displayItems(items, type);
+            }
+        }
+    } catch (error) {
+        handleFetchError(error, isFiltered, type);
+    }
+}
+
+// Fetch detailed item data by ID
+async function fetchItemById(id, type) {
+    try {
+        const response = await fetch(`https://dragonball-api.com/api/${type.toLowerCase()}/${id}`);
         return await response.json();
     } catch (error) {
-        console.error(`Error fetching ${type}:`, error);
+        console.error(`Error fetching ${type.toLowerCase()} details:`, error);
         return null;
     }
 }
 
 // Update pagination button URLs
-function updateButtonUrls(type, links) {
-    const buttons = elements[type];
-    buttons.prevButton.dataset[type] = links.previous || links.first;
-    buttons.nextButton.dataset[type] = links.next || links.last;
-    buttons.initButton.dataset[type] = links.first;
-    buttons.lastButton.dataset[type] = links.last;
+function updatePaginationUrls(links, type) {
+    const buttons = elements[type.toLowerCase()].pagination;
+    const dataAttribute = type.toLowerCase();
+    
+    buttons.prev.dataset[dataAttribute] = links.previous || links.first;
+    buttons.next.dataset[dataAttribute] = links.next || links.last;
+    buttons.init.dataset[dataAttribute] = links.first;
+    buttons.last.dataset[dataAttribute] = links.last;
 }
 
-// Fetch items (characters or planets) from URL
-async function fetchItems(type, url) {
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log(data);
-        const items = data.items;
-        updateButtonUrls(type, data.links);
-        if (Array.isArray(items)) {
-            displayItems(type, items);
-        } else {
-            console.error(`Expected an array of ${type}`);
+// Display items (characters or planets)
+async function displayItems(items, type, filtered = false) {
+    const container = filtered ? 
+        elements[type.toLowerCase()].filteredList : 
+        elements[type.toLowerCase()].list;
+    container.innerHTML = '';
+
+    const renderPromises = items.map(async (item) => {
+        const itemCard = createBasicCard(item, type);
+        
+        if (type === 'Characters') {
+            await enhanceCharacterCard(itemCard, item);
+        } else if (type === 'Planets') {
+            await enhancePlanetCard(itemCard, item);
         }
-    } catch (error) {
-        console.error(`Error fetching ${type}:`, error);
-    }
+        
+        container.appendChild(itemCard);
+    });
+
+    await Promise.all(renderPromises);
 }
 
-// Create basic card elements with proper styling
-function createCardElements(item, type) {
-    const cardDiv = document.createElement('div');
-    cardDiv.className = `${type}-card`;
+// Create basic card structure
+function createBasicCard(item, type) {
+    const card = document.createElement('div');
+    card.className = `${type.toLowerCase().slice(0, -1)}-card`;
 
     const nameElement = document.createElement('h3');
     nameElement.textContent = item.name;
-    
+    card.appendChild(nameElement);
+
     const imageElement = document.createElement('img');
-    imageElement.className = `${type}-img`;
-    imageElement.classList.add("fade-in");
+    imageElement.className = `${type.toLowerCase().slice(0, -1)}-img fade-in`;
     imageElement.src = item.image;
     imageElement.alt = item.name;
+    card.appendChild(imageElement);
 
-    const descriptionContainer = document.createElement('div');
-    descriptionContainer.className = 'description-container';
-    const descriptionElement = document.createElement('p');
-    descriptionElement.textContent = item.description;
-    descriptionContainer.appendChild(descriptionElement);
+    const descContainer = document.createElement('div');
+    descContainer.className = 'description-container';
+    const description = document.createElement('p');
+    description.textContent = item.description;
+    descContainer.appendChild(description);
+    card.appendChild(descContainer);
 
-    return { cardDiv, nameElement, imageElement, descriptionContainer };
+    return card;
 }
 
-// Display characters with transformations
-async function displayCharacter(character) {
-    const cardElements = createCardElements(character, 'character');
-    const { cardDiv, nameElement, imageElement, descriptionContainer } = cardElements;
-
+// Enhance character card with specific details
+async function enhanceCharacterCard(card, character) {
     const characteristicsDiv = document.createElement('div');
     characteristicsDiv.classList.add('characteristics-div');
 
-    // Add basic characteristics with proper styling
+    // Add basic characteristics
     const characteristics = {
-        "Raza": character.race,
-        "Género": character.gender,
-        "Ki": character.ki,
-        "Afiliación": character.affiliation,
-        "Máximo poder": character.maxKi
+        'Raza': character.race,
+        'Género': character.gender,
+        'Ki': character.ki,
+        'Afiliación': character.affiliation,
+        'Máximo poder': character.maxKi
     };
 
     Object.entries(characteristics).forEach(([label, value]) => {
@@ -114,29 +161,34 @@ async function displayCharacter(character) {
         characteristicsDiv.appendChild(element);
     });
 
-    // Handle transformations
+    // Add transformations container
     const transformationsContainer = document.createElement('div');
     transformationsContainer.className = 'transformations';
-    const fullCharacter = await fetchById('characters', character.id);
+    const loadingMessage = document.createElement('p');
+    loadingMessage.className = 'loading-transformations';
+    loadingMessage.textContent = 'Cargando transformaciones...';
+    transformationsContainer.appendChild(loadingMessage);
 
-    if (fullCharacter?.transformations?.length > 0) {
-        // Base form button
-        const baseButton = document.createElement('button');
-        baseButton.className = 'transformation-btn original-btn';
-        baseButton.textContent = 'Forma base';
-        baseButton.addEventListener('click', () => updateTransformation(imageElement, character.image, character.ki, characteristicsDiv));
-        transformationsContainer.appendChild(baseButton);
+    characteristicsDiv.appendChild(transformationsContainer);
+    card.appendChild(characteristicsDiv);
 
-        // Transformation buttons
+    // Fetch and add transformations
+    const fullCharacter = await fetchItemById(character.id, 'Characters');
+    transformationsContainer.innerHTML = '';
+
+    if (fullCharacter && fullCharacter.transformations.length > 0) {
+        // Add base form button
+        const originalButton = createTransformationButton('Forma base', character.image, character.ki);
+        transformationsContainer.appendChild(originalButton);
+
+        // Add transformation buttons
         fullCharacter.transformations.forEach(transformation => {
-            const button = document.createElement('button');
-            button.className = 'transformation-btn';
-            button.textContent = transformation.name;
-            button.addEventListener('click', () => {
-                const transformationImage = customImages[transformation.name] || transformation.image;
-                updateTransformation(imageElement, transformationImage, transformation.ki, characteristicsDiv);
-            });
-            transformationsContainer.appendChild(button);
+            const transformationButton = createTransformationButton(
+                transformation.name,
+                specialImages[transformation.name] || transformation.image,
+                transformation.ki
+            );
+            transformationsContainer.appendChild(transformationButton);
         });
     } else {
         const noTransformationsMessage = document.createElement('p');
@@ -145,25 +197,48 @@ async function displayCharacter(character) {
         transformationsContainer.appendChild(noTransformationsMessage);
     }
 
-    characteristicsDiv.appendChild(transformationsContainer);
-    appendElements(cardDiv, [nameElement, imageElement, descriptionContainer, characteristicsDiv]);
-    return cardDiv;
+    function createTransformationButton(name, imageUrl, ki) {
+        const button = document.createElement('button');
+        button.className = name === 'Forma base' ? 'transformation-btn original-btn' : 'transformation-btn';
+        button.textContent = name;
+        
+        button.addEventListener('click', () => {
+            const imageElement = card.querySelector('img');
+            const kiElement = characteristicsDiv.querySelector('p:nth-child(3)');
+            
+            kiElement.innerHTML = `<span class="characteristics yellow">Ki:</span> <span class="characteristics">${ki}</span>`;
+            imageElement.classList.add('fade-out');
+
+            imageElement.addEventListener('animationend', () => {
+                imageElement.src = imageUrl;
+                imageElement.onload = () => {
+                    imageElement.classList.remove('fade-out');
+                    imageElement.classList.add('fade-in');
+                    imageElement.addEventListener('animationend', () => {
+                        imageElement.classList.remove('fade-in');
+                    }, { once: true });
+                };
+            }, { once: true });
+        });
+
+        return button;
+    }
 }
 
-// Display planets with inhabitants
-async function displayPlanet(planet) {
-    const cardElements = createCardElements(planet, 'planet');
-    const { cardDiv, nameElement, imageElement, descriptionContainer } = cardElements;
-
+// Enhance planet card with specific details
+async function enhancePlanetCard(card, planet) {
     const characteristicsDiv = document.createElement('div');
     characteristicsDiv.classList.add('characteristics-div');
 
+    // Add destruction status
     const isDestroyedElement = document.createElement('p');
     isDestroyedElement.innerHTML = `<span class="characteristics yellow">Destruido:</span> <span class="characteristics">${planet.isDestroyed ? 'Sí' : 'No'}</span>`;
     characteristicsDiv.appendChild(isDestroyedElement);
+    card.appendChild(characteristicsDiv);
 
-    const fullPlanet = await fetchById('planets', planet.id);
-    if (fullPlanet?.characters?.length > 0) {
+    // Fetch and add inhabitants
+    const fullPlanet = await fetchItemById(planet.id, 'Planets');
+    if (fullPlanet && fullPlanet.characters.length > 0) {
         const characterContainer = document.createElement('div');
         characterContainer.className = 'habitants-container';
         fullPlanet.characters.forEach(character => {
@@ -171,158 +246,125 @@ async function displayPlanet(planet) {
             characterElement.textContent = character.name;
             characterContainer.appendChild(characterElement);
         });
-        characteristicsDiv.appendChild(characterContainer);
+        card.appendChild(characterContainer);
     } else {
         const noCharactersMessage = document.createElement('p');
         noCharactersMessage.className = "characteristics yellow";
         noCharactersMessage.textContent = 'Sin personajes conocidos';
-        characteristicsDiv.appendChild(noCharactersMessage);
+        card.appendChild(noCharactersMessage);
     }
-
-    appendElements(cardDiv, [nameElement, imageElement, descriptionContainer, characteristicsDiv]);
-    return cardDiv;
 }
 
-// Generic display function for both types
-async function displayItems(type, items, filtered = false) {
-    const container = filtered ? elements[type].filteredList : elements[type].list;
-    container.innerHTML = '';
-
-    const displayFunction = type === 'characters' ? displayCharacter : displayPlanet;
-    const displayPromises = items.map(item => displayFunction(item));
-
-    const cards = await Promise.all(displayPromises);
-    cards.forEach(card => container.appendChild(card));
-    console.log(`All ${type} cards have been rendered.`);
-}
-
-// Helper function to append multiple elements
-function appendElements(parent, elements) {
-    elements.forEach(element => parent.appendChild(element));
-}
-
-// Update transformation image with animation
-function updateTransformation(imageElement, newImage, newKi, characteristicsDiv) {
-    imageElement.classList.add('fade-out');
-    imageElement.addEventListener('animationend', () => {
-        imageElement.src = newImage;
-        imageElement.onload = () => {
-            imageElement.classList.remove('fade-out');
-            imageElement.classList.add('fade-in');
-            imageElement.addEventListener('animationend', () => {
-                imageElement.classList.remove('fade-in');
-            }, { once: true });
-        };
-
-        // Update Ki display
-        const kiElement = characteristicsDiv.querySelector('p:nth-child(3)');
-        if (kiElement) {
-            kiElement.innerHTML = `<span class="characteristics yellow">Ki:</span> <span class="characteristics">${newKi}</span>`;
-        }
-    }, { once: true });
-}
-
-// Handle pagination limits
-function handlePagination(type) {
-    const { paginationInput, errorText, list } = elements[type];
-    const value = parseInt(paginationInput.value);
-    list.innerHTML = '';
-
-    let limit;
-    if (value > 10) {
-        errorText.textContent = `La paginación máxima es de 10 ${type}`;
-        limit = 10;
-    } else if (value < 1) {
-        errorText.textContent = `Debe de haber al menos un ${type.slice(0, -1)}`;
-        limit = 1;
+// Handle filter form submission
+function handleFilter(e, type) {
+    const formData = new FormData(e.target.form);
+    const filters = {};
+    
+    // Get filter values based on type
+    if (type === 'Characters') {
+        filters.name = formData.get('name');
+        filters.gender = formData.get('gender');
+        filters.race = formData.get('race');
+        filters.affiliation = formData.get('affiliation');
     } else {
-        errorText.textContent = '';
-        limit = value;
+        filters.name = formData.get('planet-name');
+        filters.isDestroyed = formData.get('isDestroyed');
     }
 
-    fetchItems(type, `https://dragonball-api.com/api/${type}?page=1&limit=${limit}`);
-}
-
-// Handle search form submission
-function handleSearch(type, e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const params = new URLSearchParams();
-    let hasFilters = false;
-
-    formData.forEach((value, key) => {
-        if (value) {
-            // Handle special case for planet-name
-            const paramKey = key === 'planet-name' ? 'name' : key;
-            params.append(paramKey, value);
-            hasFilters = true;
-        }
-    });
-
-    if (!hasFilters) {
-        showNoItemsFoundMessage(type, "Los filtros están vacíos. Por favor, ingresa algún criterio.");
+    // Check if all filters are empty
+    if (Object.values(filters).every(value => !value)) {
+        showNoItemsFoundMessage(type, true);
         return;
     }
 
-    const url = `https://dragonball-api.com/api/${type}?${params.toString()}`;
-    console.log("Search URL:", url);
-    fetchFilteredItems(type, url);
+    // Build filter URL
+    let url = `https://dragonball-api.com/api/${type.toLowerCase()}?`;
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+            url += `${key}=${encodeURIComponent(value)}&`;
+        }
+    });
+    url = url.slice(0, -1);
+
+    fetchData(url, type, true);
 }
 
-// Fetch filtered items
-async function fetchFilteredItems(type, url) {
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (Array.isArray(data) && data.length > 0) {
-            displayItems(type, data, true);
-        } else {
-            showNoItemsFoundMessage(type);
-        }
-    } catch (error) {
-        console.error(`Error fetching filtered ${type}:`, error);
+// Show message when no items are found
+function showNoItemsFoundMessage(type, isEmpty = false) {
+    const container = elements[type.toLowerCase()].filteredList;
+    const message = isEmpty ? 
+        "Los filtros están vacíos. Por favor, ingresa algún criterio." :
+        `No se encontraron ${type.toLowerCase()} con los filtros seleccionados`;
+    
+    container.innerHTML = `<p class="main__text">${message}</p>`;
+}
+
+// Handle fetch errors
+function handleFetchError(error, isFiltered, type) {
+    if (error.name === "AbortError") {
+        console.log(`Solicitud de ${isFiltered ? 'filtrado de ' : ''}${type.toLowerCase()} cancelada`);
+        return;
+    }
+    console.error(`Error fetching ${type.toLowerCase()}:`, error);
+    if (isFiltered) {
         showNoItemsFoundMessage(type);
     }
 }
 
-// Show no items found message
-function showNoItemsFoundMessage(type, message = `No se encontraron ${type} con los filtros seleccionados`) {
-    const container = elements[type].filteredList;
-    const errorMessage = document.createElement('p');
-    errorMessage.textContent = message;
-    container.innerHTML = '';
-    container.appendChild(errorMessage);
+// Handle pagination input changes
+function handlePaginationInput(type) {
+    const { paginationInput, errorDisplay, list } = elements[type.toLowerCase()];
+    list.innerHTML = '';
+    
+    const value = parseInt(paginationInput.value);
+    let limit;
+
+    if (value > 10) {
+        errorDisplay.classList.add('main__text');
+        errorDisplay.textContent = `La paginación máxima es de 10 ${type.toLowerCase()}`;
+        limit = 10;
+    } else if (value < 1) {
+        errorDisplay.classList.add('main__text');
+        errorDisplay.textContent = `Debe de haber al menos un ${type.slice(0, -1).toLowerCase()}`;
+        limit = 1;
+    } else {
+        errorDisplay.textContent = '';
+        limit = value;
+    }
+
+    fetchData(`https://dragonball-api.com/api/${type.toLowerCase()}?page=1&limit=${limit}`, type);
 }
 
 // Initialize event listeners
 function initializeEventListeners() {
-    ['characters', 'planets'].forEach(type => {
+    ['Characters', 'Planets'].forEach(type => {
+        const typeElements = elements[type.toLowerCase()];
+        
         // Pagination buttons
-        const buttons = [
-            elements[type].prevButton,
-            elements[type].initButton,
-            elements[type].nextButton,
-            elements[type].lastButton
-        ];
-
-        buttons.forEach(button => {
+        Object.values(typeElements.pagination).forEach(button => {
             button.addEventListener('click', (e) => {
-                fetchItems(type, e.target.dataset[type]);
+                const url = e.target.dataset[type.toLowerCase()];
+                fetchData(url, type);
             });
         });
-
         // Pagination input
-        elements[type].paginationInput.addEventListener('input', () => handlePagination(type));
+        typeElements.paginationInput.addEventListener('input', () => handlePaginationInput(type));
 
         // Filter form
-        elements[type].filterForm.addEventListener('submit', (e) => handleSearch(type, e));
+        typeElements.filterForm.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', (e) => handleFilter(e, type));
+        });
+
+        typeElements.filterForm.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', (e) => handleFilter(e, type));
+        });
     });
 }
 
-// Initialize on page load
+// Initialize application
 document.addEventListener('DOMContentLoaded', () => {
-    fetchItems('characters', 'https://dragonball-api.com/api/characters?page=1&limit=4');
-    fetchItems('planets', 'https://dragonball-api.com/api/planets?page=1&limit=4');
+    fetchData('https://dragonball-api.com/api/characters?page=1&limit=4', 'Characters');
+    fetchData('https://dragonball-api.com/api/planets?page=1&limit=4', 'Planets');
     initializeEventListeners();
+    initial = false;
 });
