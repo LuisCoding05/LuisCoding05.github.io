@@ -248,6 +248,9 @@ button {
     header, footer {
         font-size: 14px;
     }
+    main{
+        font-size: 12px;
+    }
 }
 
 /* Estilos de formularios */
@@ -438,4 +441,20 @@ header nav ul li a.active {
 
 .detail-img:hover{
     transform: scale(1.3);
+}
+
+/* Estilos para nombres clickables en planetas */
+.clickable-character {
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    display: block;
+    text-align: center;
+    padding-bottom: var(--padding-small);
+}
+
+.clickable-character:hover {
+    color: #ff6600;
+    text-decoration: underline;
 }

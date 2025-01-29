@@ -1,6 +1,62 @@
 
 let initial = true;
-
+const translations = {
+    filters: {
+        characters: {
+            name: "Nombre",
+            gender: {
+                label: "Género",
+                options: {
+                    Male: "Masculino",
+                    Female: "Femenino",
+                    Unknown: "Desconocido"
+                }
+            },
+            race: {
+                label: "Raza",
+                options: {
+                    Human: "Humano",
+                    Saiyan: "Saiyan",
+                    Namekian: "Namekiano",
+                    Majin: "Majin",
+                    "Frieza Race": "Raza Frieza",
+                    Android: "Androide",
+                    "Jiren Race": "Raza Jiren",
+                    "God Angel": "Ángel Divino",
+                    Evil: "Maligno",
+                    Nucleico: "Nucleico",
+                    "Nucleico benigno": "Nucleico Benigno",
+                    Unknown: "Desconocido"
+                }
+            },
+            affiliation: {
+                label: "Afiliación",
+                options: {
+                    "Z Fighter": "Guerrero Z",
+                    "Red Ribbon Army": "Ejército de la Cinta Roja",
+                    "Namekian Warrior": "Guerrero Namekiano",
+                    Freelancer: "Freelancer",
+                    "Army of Frieza": "Ejército de Frieza",
+                    "Pride Troopers": "Tropa del Orgullo",
+                    "Assistant of Vermoud": "Asistente de Vermoud",
+                    "God Assistant of Beerus": "Asistente Divino de Beerus",
+                    Villain: "Villano",
+                    Other: "Otro"
+                }
+            }
+        },
+        planets: {
+            name: "Nombre",
+            isDestroyed: {
+                label: "Destruido",
+                options: {
+                    true: "Sí",
+                    false: "No"
+                }
+            }
+        }
+    }
+};
 const sections = {
     welcome: document.getElementById('welcome-section'),
     characters: document.getElementById('characters-section'),
@@ -12,6 +68,14 @@ const navLinks = {
     characters: document.getElementById('characters-link'),
     planets: document.getElementById('planets-link')
 };
+
+// Función para traducir valores
+function translate(value, type, filter) {
+    if (translations.filters[type]?.[filter]?.options?.[value]) {
+        return translations.filters[type][filter].options[value];
+    }
+    return value;
+}
 
 function showSection(sectionId) {
     // Esconder las secciones
@@ -142,6 +206,22 @@ async function displayItems(items, type, filtered = false) {
         
         if (type === 'Characters') {
             await enhanceCharacterCard(itemCard, item);
+            
+            // Traducir detalles
+            const characteristicsDiv = itemCard.querySelector('.characteristics-div');
+            characteristicsDiv.querySelectorAll('p').forEach(p => {
+                const spans = p.querySelectorAll('span');
+                if (spans.length === 2) { // Solo si hay 2 spans
+                    const [labelSpan, valueSpan] = spans;
+                    const label = labelSpan.textContent.replace(':', '');
+                    const translatedLabel = translate(label, 'characters', label.toLowerCase());
+                    const translatedValue = translate(valueSpan.textContent, 'characters', label.toLowerCase());
+                    
+                    labelSpan.textContent = `${translatedLabel}:`;
+                    valueSpan.textContent = translatedValue;
+                }
+            });
+            
         } else if (type === 'Planets') {
             await enhancePlanetCard(itemCard, item);
         }
@@ -157,12 +237,6 @@ function createBasicCard(item, type) {
     const card = document.createElement('div');
     card.className = `${type.toLowerCase().slice(0, -1)}-card`;
 
-    // Agregar evento de clic para redirigir a la página de detalle
-    card.addEventListener('click', () => {
-        // Redirigir a la página de detalle con el ID del personaje/planeta
-        window.location.href = `detail.html?id=${item.id}&type=${type.toLowerCase()}`;
-    });
-
     // Resto del código para crear la tarjeta...
     const nameElement = document.createElement('h3');
     nameElement.textContent = item.name;
@@ -174,12 +248,11 @@ function createBasicCard(item, type) {
     imageElement.alt = item.name;
     card.appendChild(imageElement);
 
-    const descContainer = document.createElement('div');
-    descContainer.className = 'description-container';
-    const description = document.createElement('p');
-    description.textContent = item.description;
-    descContainer.appendChild(description);
-    card.appendChild(descContainer);
+    // Agregar evento de clic para redirigir a la página de detalle
+    imageElement.addEventListener('click', () => {
+        // Redirigir a la página de detalle con el ID y tipo del personaje/planeta
+        window.location.href = `detail.html?id=${item.id}&type=${type.toLowerCase()}`;
+    });
 
     return card;
 }
@@ -188,15 +261,21 @@ function createBasicCard(item, type) {
 async function enhanceCharacterCard(card, character) {
     const characteristicsDiv = document.createElement('div');
     characteristicsDiv.classList.add('characteristics-div');
-
+    const translatedGender = translations.filters.characters.gender.options[character.gender] || character.gender;
+    const translatedAffiliation = translations.filters.characters.affiliation.options[character.affiliation] || character.affiliation;
     // Añadir características básicas
     const characteristics = {
         'Raza': character.race,
-        'Género': character.gender,
+        'género': translatedGender,
         'Ki': character.ki,
-        'Afiliación': character.affiliation,
-        'Máximo poder': character.maxKi
+        'Afiliación': translatedAffiliation,
     };
+    const detailsElement = document.createElement('p');
+    detailsElement.innerHTML = `
+        <span class="characteristics yellow">Detalles:</span> 
+        <span class="characteristics">pulsa la imagen del personaje para más detalles</span>
+    `;
+    characteristicsDiv.appendChild(detailsElement);
 
     Object.entries(characteristics).forEach(([label, value]) => {
         const element = document.createElement('p');
@@ -277,25 +356,10 @@ async function enhancePlanetCard(card, planet) {
     const isDestroyedElement = document.createElement('p');
     isDestroyedElement.innerHTML = `<span class="characteristics yellow">Destruido:</span> <span class="characteristics">${planet.isDestroyed ? 'Sí' : 'No'}</span>`;
     characteristicsDiv.appendChild(isDestroyedElement);
+    const detailsElement = document.createElement('p');
+    detailsElement.innerHTML = `<span class="characteristics yellow">Detalles:</span> <span class="characteristics">Clickea la imagen para ver detalles</span>`;
+    characteristicsDiv.appendChild(detailsElement);
     card.appendChild(characteristicsDiv);
-
-    // Buscar y añadir habitantes
-    const fullPlanet = await fetchItemById(planet.id, 'Planets');
-    if (fullPlanet && fullPlanet.characters.length > 0) {
-        const characterContainer = document.createElement('div');
-        characterContainer.className = 'habitants-container';
-        fullPlanet.characters.forEach(character => {
-            const characterElement = document.createElement('p');
-            characterElement.textContent = character.name;
-            characterContainer.appendChild(characterElement);
-        });
-        card.appendChild(characterContainer);
-    } else {
-        const noCharactersMessage = document.createElement('p');
-        noCharactersMessage.className = "characteristics yellow";
-        noCharactersMessage.textContent = 'Sin personajes conocidos';
-        card.appendChild(noCharactersMessage);
-    }
 }
 
 // Manejar el filtrado
