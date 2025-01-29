@@ -416,3 +416,21 @@ header nav ul li a.active {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--button-border-color);
 }
+
+.detail-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.detail-img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}

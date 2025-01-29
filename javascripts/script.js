@@ -152,11 +152,18 @@ async function displayItems(items, type, filtered = false) {
     await Promise.all(renderPromises);
 }
 
-// Crear una tarjeta básica para un personaje o planeta
+// Dentro de la función createBasicCard, agregar un evento de clic a la tarjeta
 function createBasicCard(item, type) {
     const card = document.createElement('div');
     card.className = `${type.toLowerCase().slice(0, -1)}-card`;
 
+    // Agregar evento de clic para redirigir a la página de detalle
+    card.addEventListener('click', () => {
+        // Redirigir a la página de detalle con el ID del personaje/planeta
+        window.location.href = `detail.html?id=${item.id}&type=${type.toLowerCase()}`;
+    });
+
+    // Resto del código para crear la tarjeta...
     const nameElement = document.createElement('h3');
     nameElement.textContent = item.name;
     card.appendChild(nameElement);
