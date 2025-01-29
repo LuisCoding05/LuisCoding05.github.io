@@ -397,3 +397,22 @@ header nav ul li a.active {
     border-bottom: 2px solid var(--primary-bg-color);
     padding-bottom: 3px;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary-text-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a5a5a5;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--button-border-color);
+}
