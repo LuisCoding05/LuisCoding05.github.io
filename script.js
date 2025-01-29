@@ -1,5 +1,41 @@
 
 let initial = true;
+
+const sections = {
+    welcome: document.getElementById('welcome-section'),
+    characters: document.getElementById('characters-section'),
+    planets: document.getElementById('planets-section')
+};
+
+const navLinks = {
+    welcome: document.getElementById('welcome-link'),
+    characters: document.getElementById('characters-link'),
+    planets: document.getElementById('planets-link')
+};
+
+function showSection(sectionId) {
+    // Esconder las secciones
+    Object.values(sections).forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Quitar la clase activa de los links
+    Object.values(navLinks).forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Mostar la sección seleccionada y añadir la clase activa al link
+    sections[sectionId].style.display = 'block';
+    navLinks[sectionId].classList.add('active');
+    
+    // Cargar datos si es necesario
+    if (sectionId === 'characters' && sections.characters.querySelector('#character-list').children.length === 0) {
+        fetchData('https://dragonball-api.com/api/characters?page=1&limit=2', 'Characters');
+    } else if (sectionId === 'planets' && sections.planets.querySelector('#planet-list').children.length === 0) {
+        fetchData('https://dragonball-api.com/api/planets?page=1&limit=2', 'Planets');
+    }
+}
+
 // Controlador común para elementos principales y filtros
 const controllers = {
     main: null,
@@ -12,7 +48,7 @@ const specialImages = {
     'Trunks SSJ2': '../img/Ssj2Trunks.png'
 };
 
-// DOM Elements object for centralized reference management
+// Objeto con los elementos del DOM
 const elements = {
     characters: {
         list: document.getElementById('character-list'),
@@ -363,8 +399,18 @@ function initializeEventListeners() {
 
 // Inicialización de la página
 document.addEventListener('DOMContentLoaded', () => {
-    fetchData('https://dragonball-api.com/api/characters?page=1&limit=2', 'Characters');
-    fetchData('https://dragonball-api.com/api/planets?page=1&limit=2', 'Planets');
+    // Inicializar los eventos de los links de navegación
+    Object.entries(navLinks).forEach(([sectionId, link]) => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(sectionId);
+        });
+    });
+    
+    // Enseñar la sección de bienvenida
+    showSection('welcome');
+    
+    // Inicializar otros eventos
     initializeEventListeners();
     initial = false;
 });

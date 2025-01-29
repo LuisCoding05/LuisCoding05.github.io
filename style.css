@@ -17,7 +17,7 @@
     --border-radius: 8px;
 }
 
-/* General Styles */
+/*Estilos Generales */
 * {
     box-sizing: border-box;
 }
@@ -35,9 +35,11 @@ body {
     font-family: var(--font-family);
     margin: 0;
     padding: 0;
-    background: linear-gradient(150deg, #53525a, #9a9ac6, #7575b4);
+    background: linear-gradient(150deg, #46464b, #acab91, #968f30);
 }
 
+
+/* Estilos del header y footer */
 header,footer {
     text-align: center;
     background-color: var(--primary-bg-color);
@@ -65,6 +67,11 @@ header h1 {
 header p {
     font-size: 1.2rem;
     font-weight: lighter;
+}
+
+/* svg del footer */
+#svgLogo{
+    border-radius: 30px;
 }
 
 header nav ul {
@@ -115,7 +122,7 @@ footer div a:hover {
     filter: brightness(1.2);
 }
 
-
+/* Estilos de la sección principal */
 main {
     padding: var(--padding-large);
     background-color: rgba(255, 255, 255, 0.7);
@@ -145,13 +152,14 @@ hr {
     width: 80%;
 }
 
-/* Grid Styles */
+/* Estilos grid */
 .grid {
     display: grid;
     gap: var(--padding-large);
     grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
 }
 
+/* Ajustes extras a algunas secciones */
 #filterCharacters, #filterPlanets {
     margin-bottom: var(--padding-large);
 }
@@ -161,7 +169,7 @@ hr {
     margin: 0 auto;
 }
 
-/* Card Styles */
+/* Estilos de cartas */
 .character-card, .planet-card {
     border: 1px solid var(--card-border-color);
     border-radius: var(--border-radius);
@@ -209,7 +217,7 @@ hr {
     height: 160px;
 }
 
-/* Pagination and Button Styles */
+/* estilos de los botones de paginación */
 .pagination-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -234,14 +242,14 @@ button {
     cursor: pointer;
 }
 
-/* Responsive Adjustments */
+/* Ajustes responsive */
 @media (max-width: 600px) {
     header, footer {
         font-size: 14px;
     }
 }
 
-/* Form Styles */
+/* Estilos de formularios */
 form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -266,7 +274,7 @@ input, select {
     }
 }
 
-/* Additional Section Styles */
+/* Estilos adicionales de secciones */
 .characteristics-div {
     background-color: var(--primary-bg-color);
     padding: var(--padding-large);
@@ -301,7 +309,7 @@ input, select {
     max-height: 200px;
 }
 
-/* Fade-in and Fade-out Animations */
+/* Animaciones fade-in y fade-out */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -319,7 +327,7 @@ input, select {
         opacity: 0;
     }
 }
-
+/* Animación del fondo del header */
 @keyframes warm-gradient {
     0% {
         background-position: 0% 50%;
@@ -340,4 +348,51 @@ input, select {
 .fade-out {
     opacity: 1;
     animation: fadeOut 0.5s forwards;
+}
+/* Animaciones de bienvenida */
+.welcome-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-light);
+}
+
+.welcome-content {
+    text-align: left;
+    color: var(--primary-bg-color);
+    padding: 1rem;
+}
+
+.welcome-content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.welcome-content li {
+    padding: 0.5rem 0;
+    margin: 0.5rem 0;
+    border-left: 4px solid var(--secondary-text-color);
+    padding-left: 1rem;
+}
+
+.welcome-content p {
+    margin: 1rem 0;
+    line-height: 1.6;
+}
+
+.active-section {
+    display: block;
+}
+
+.section-content {
+    display: none;
+}
+
+/* Actualizar los header nav styles */
+header nav ul li a.active {
+    color: var(--primary-bg-color);
+    border-bottom: 2px solid var(--primary-bg-color);
+    padding-bottom: 3px;
 }
