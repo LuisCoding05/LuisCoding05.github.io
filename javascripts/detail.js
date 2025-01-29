@@ -81,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         transformationDetails.innerHTML = `
             <p><strong>Nombre:</strong> ${transformation.name}</p>
             <p><strong>Ki:</strong> ${transformation.ki}</p>
-            <p><strong>Descripción:</strong> ${transformation.description || 'Sin descripción'}</p>
         `;
     }
 });
