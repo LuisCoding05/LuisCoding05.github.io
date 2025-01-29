@@ -136,6 +136,7 @@ main {
     background-size: cover; 
     background-position: center;
     width: 90%;
+    aspect-ratio: 16/9;
 }
 
 .main__text{
