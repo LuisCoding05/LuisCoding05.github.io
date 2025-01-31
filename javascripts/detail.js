@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let controller;
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id'); // Obtener el ID del personaje/planeta
     const type = urlParams.get('type'); // Obtener el tipo (character o planet)
@@ -71,9 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (id && type) {
-        fetch(`https://dragonball-api.com/api/${type}/${id}`)
+        if (controller) {
+            controller.abort();
+        }
+
+        controller = new AbortController();
+        const signal = controller.signal;
+        fetch(`https://dragonball-api.com/api/${type}/${id}`, {signal})
             .then(response => response.json())
             .then(data => {
+                
                 // Mostrar información básica
                 characterName.textContent = data.name;
                 characterImage.src = data.image;

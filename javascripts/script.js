@@ -357,7 +357,7 @@ async function enhancePlanetCard(card, planet) {
     isDestroyedElement.innerHTML = `<span class="characteristics yellow">Destruido:</span> <span class="characteristics">${planet.isDestroyed ? 'Sí' : 'No'}</span>`;
     characteristicsDiv.appendChild(isDestroyedElement);
     const detailsElement = document.createElement('p');
-    detailsElement.innerHTML = `<span class="characteristics yellow">Detalles:</span> <span class="characteristics">Clickea la imagen para ver detalles</span>`;
+    detailsElement.innerHTML = `<span class="characteristics yellow">Detalles:</span> <span class="characteristics">pulsa la imagen del personaje para más detalles</span>`;
     characteristicsDiv.appendChild(detailsElement);
     card.appendChild(characteristicsDiv);
 }
