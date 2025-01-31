@@ -80,6 +80,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 characterImage.alt = data.name;
                 characterDescription.textContent = data.description;
                 
+                // Crea el botón de toggle
+                const toggleButton = document.createElement('button');
+                toggleButton.className = 'description-toggle';
+                toggleButton.textContent = 'Mostrar más';
+
+                // Inserta el botón después de la descripción
+                characterDescription.insertAdjacentElement('afterend', toggleButton);
+
+                // Controlador para el toggle
+                toggleButton.addEventListener('click', () => {
+                    characterDescription.classList.toggle('expanded');
+                    toggleButton.textContent = characterDescription.classList.contains('expanded') 
+                        ? 'Mostrar menos' 
+                        : 'Mostrar más';
+                    
+                    // Oculta el botón si el texto no necesita expandirse
+                    if (characterDescription.scrollHeight === characterDescription.clientHeight) {
+                        toggleButton.style.display = 'none';
+                    }
+                });
+
+                // Oculta el botón si el texto es corto
+                if (characterDescription.scrollHeight === characterDescription.clientHeight) {
+                    toggleButton.style.display = 'none';
+                }
+
                 // Mostrar detalles según el tipo
                 if (type === 'characters') {
                     transformationSection.style.display = 'block';
