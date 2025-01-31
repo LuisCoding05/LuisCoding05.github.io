@@ -94,11 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleButton.textContent = characterDescription.classList.contains('expanded') 
                         ? 'Mostrar menos' 
                         : 'Mostrar más';
-                    
-                    // Oculta el botón si el texto no necesita expandirse
-                    if (characterDescription.scrollHeight === characterDescription.clientHeight) {
-                        toggleButton.style.display = 'none';
-                    }
                 });
 
                 // Oculta el botón si el texto es corto
